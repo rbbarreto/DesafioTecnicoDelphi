@@ -45,6 +45,7 @@ type
     FServidor: TServidor;
 
     function InitDataset: TClientDataset;
+    procedure DeletarRegistros(aArquivos: string);
   public
   end;
 
@@ -66,23 +67,34 @@ var
   cds: TClientDataset;
   i: Integer;
 begin
-  cds := InitDataset;
+
   ProgressBar.Max := QTD_ARQUIVOS_ENVIAR;
+  ProgressBar.Position := 0;
 
   for i := 0 to QTD_ARQUIVOS_ENVIAR do
   begin
+    cds := InitDataset;
     ProgressBar.Position := ProgressBar.Position + 1;
 
     cds.Append;
     TBlobField(cds.FieldByName('Arquivo')).LoadFromFile(FPath);
     cds.Post;
 
-    {$REGION Simulação de erro, não alterar}
-    if i = (QTD_ARQUIVOS_ENVIAR/2) then
-      FServidor.SalvarArquivos(NULL);
-    {$ENDREGION}
+    try
+      {$REGION Simulação de erro, não alterar}
+      if i = (QTD_ARQUIVOS_ENVIAR/2) then
+        FServidor.SalvarArquivos(NULL);
+      {$ENDREGION}
+    except on E: Exception do
+       begin
+         DeletarRegistros(ExtractFilePath(ParamStr(0)) + 'Servidor\');
+         cds.Free;
+       end;
+    end;
 
     FServidor.SalvarArquivos(cds.Data);
+
+    cds.Free;
   end;
 end;
 
@@ -140,6 +152,24 @@ begin
     cds.Free;
   end;
 
+end;
+
+procedure TfClienteServidor.DeletarRegistros(aArquivos: string);
+var
+  SR: TSearchRec;
+  I: integer;
+begin
+  I := FindFirst(aArquivos + '*.*', faAnyFile, SR);
+  while I = 0 do
+  begin
+    if (SR.Attr and faDirectory) <> faDirectory then
+    begin
+      if not DeleteFile(PChar(aArquivos + SR.Name)) then
+        Exit;
+    end;
+
+    I := FindNext(SR);
+  end;
 end;
 
 procedure TfClienteServidor.FormClose(Sender: TObject;

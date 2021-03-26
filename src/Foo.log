@@ -59,3 +59,8 @@
 25/03/21 21:07:40 - Caption: Cliente - Servidor
 25/03/21 21:07:40 - ClassName: EDatabaseError
 25/03/21 21:07:40 - Erro: Cannot perform this operation on a closed dataset
+26/03/21 12:44:02 - =========================================================
+26/03/21 12:44:02 - Form: fClienteServidor
+26/03/21 12:44:02 - Caption: Cliente - Servidor
+26/03/21 12:44:02 - ClassName: EDatabaseError
+26/03/21 12:44:02 - Erro: Cannot perform this operation on a closed dataset
